@@ -4,7 +4,7 @@ import requests
 import time
 import BaseHTTPServer
 
-HOST_NAME = '0.0.0.0' # !!!REMEMBER TO CHANGE THIS!!!
+HOST_NAME = '0.0.0.0'
 PORT_NUMBER = 8000
 
 url = 'https://ec2-54-165-115-111.compute-1.amazonaws.com/job/unikitty-deploy/build?token=unikitty-is-awesome'
@@ -12,15 +12,21 @@ url = 'https://ec2-54-165-115-111.compute-1.amazonaws.com/job/unikitty-deploy/bu
 class PassThroughHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_HEAD(s):
         s.send_response(200)
-        s.send_header("Content-type", "text/plain")
+        s.send_header("Content-type", "application/json")
         s.end_headers()
 
     def do_GET(s):
         """Respond to a GET request."""
         s.send_response(200)
-        s.send_header("Content-type", "text/plain")
+        s.send_header("Content-type", "application/json")
         s.end_headers()
-        s.wfile.write(requests.get(url, verify=False))
+        s.wfile.write(''.join([
+            '{',
+            '"state": "success",',
+            '"description": "%s"' % requests.get(url, verify=False),
+            '}'
+        ]))
+
 
     def do_POST(s):
         return self.do_GET(s)
